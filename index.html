@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[AÉ] L'Atelier des Ébauches — Projets Open Source</title>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --graphite:    #2C2C2A;
+    --graphite-mid:#4A4A47;
+    --graphite-lt: #7A7A75;
+    --kraft:       #C8A97A;
+    --kraft-dark:  #8B6B3D;
+    --kraft-light: #E8D5B0;
+    --blanc:       #F5F0E8;
+    --white:       #FFFFFF;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--blanc);
+    color: var(--graphite);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(44,44,42,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(44,44,42,0.06) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2.5rem;
+    background: rgba(44,44,42,0.97);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-logo {
+    font-family: 'Special Elite', cursive;
+    font-size: 1rem;
+    color: var(--kraft);
+    text-decoration: none;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .nav-links a {
+    color: var(--graphite-lt);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--kraft); }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    z-index: 1;
+    background: var(--graphite);
+    padding: 7rem 2.5rem 4rem;
+    overflow: hidden;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(200,169,122,0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(200,169,122,0.07) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+  }
+
+  .hero-inner { max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
+
+  .hero-tag {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--kraft-dark);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 {
+    font-family: 'Special Elite', cursive;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    color: var(--blanc);
+    line-height: 1.05;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 span { color: var(--kraft); }
+
+  .hero-sub {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    color: var(--graphite-lt);
+    max-width: 50ch;
+    line-height: 1.9;
+    border-left: 2px solid var(--kraft);
+    padding-left: 1rem;
+  }
+
+  /* ── MAIN ── */
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 3rem 2.5rem;
+  }
+
+  .section-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--kraft-dark);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--kraft-light);
+  }
+
+  /* ── GRILLE PROJETS ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .project-card {
+    background: var(--white);
+    border: 1px solid var(--kraft-light);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    overflow: hidden;
+  }
+
+  .project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(44,44,42,0.1);
+    border-color: var(--kraft);
+  }
+
+  .project-card.active {
+    border: 2px solid var(--kraft);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(44,44,42,0.1);
+  }
+
+  .card-img {
+    height: 160px;
+    background: var(--graphite);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.75rem;
+    color: var(--graphite-mid);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-img-tag {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.6rem;
+    background: var(--kraft);
+    color: var(--graphite);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .card-body { padding: 0.9rem 1rem 1rem; }
+
+  .card-num {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--kraft-dark);
+    letter-spacing: 0.2em;
+    margin-bottom: 0.3rem;
+  }
+
+  .card-title {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.05rem;
+    color: var(--graphite);
+    margin-bottom: 0.3rem;
+    line-height: 1.3;
+  }
+
+  .card-type {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.68rem;
+    color: var(--graphite-lt);
+    margin-bottom: 0.6rem;
+  }
+
+  .card-status {
+    display: inline-block;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .s-termine  { background: #EAF3DE; color: #27500A; }
+  .s-en-cours { background: #FAEEDA; color: #633806; }
+  .s-a-venir  { background: #F1EFE8; color: #444441; }
+
+  /* ── DETAIL ── */
+  .detail {
+    display: none;
+    background: var(--white);
+    border: 1px solid var(--kraft-light);
+    margin-bottom: 3rem;
+    overflow: hidden;
+  }
+
+  .detail.visible { display: block; }
+
+  .detail-header {
+    background: var(--graphite);
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .detail-title {
+    font-family: 'Special Elite', cursive;
+    font-size: 1.6rem;
+    color: var(--blanc);
+    margin-bottom: 0.3rem;
+  }
+
+  .detail-sub {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.68rem;
+    color: var(--kraft);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .detail-close {
+    background: transparent;
+    border: 1px solid var(--graphite-mid);
+    color: var(--graphite-lt);
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .detail-close:hover { border-color: var(--kraft); color: var(--kraft); }
+
+  .detail-body { padding: 2rem; }
+
+  /* ── RECETTE ── */
+  .recipe-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 2.5rem;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 640px) { .recipe-grid { grid-template-columns: 1fr; } }
+
+  .recipe-block-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--kraft-dark);
+    margin-bottom: 0.8rem;
+  }
+
+  .ingredient {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid var(--blanc);
+    font-size: 0.82rem;
+    color: var(--graphite-mid);
+  }
+
+  .ingredient-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--kraft);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .ingredient-qty {
+    margin-left: auto;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    color: var(--kraft-dark);
+    white-space: nowrap;
+  }
+
+  /* ── TIMELINE ── */
+  .tl-step {
+    display: flex;
+    gap: 1rem;
+    cursor: pointer;
+  }
+
+  .tl-left {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 30px;
+    flex-shrink: 0;
+  }
+
+  .tl-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--kraft-light);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--graphite-lt);
+    flex-shrink: 0;
+    transition: all 0.2s;
+  }
+
+  .tl-dot.done  { background: var(--graphite); border-color: var(--graphite); color: var(--kraft); }
+  .tl-dot.active{ background: var(--kraft);    border-color: var(--kraft);    color: var(--graphite); font-weight: 700; }
+
+  .tl-line {
+    width: 1px;
+    background: var(--kraft-light);
+    flex: 1;
+    min-height: 14px;
+  }
+
+  .tl-content { padding: 0.1rem 0 1.2rem; flex: 1; }
+
+  .tl-step-title {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.95rem;
+    color: var(--graphite);
+    margin-bottom: 0.2rem;
+  }
+
+  .tl-step-desc {
+    font-size: 0.82rem;
+    color: var(--graphite-lt);
+    line-height: 1.7;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+  }
+
+  .tl-step-desc.open { max-height: 200px; }
+
+  .tl-step-date {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--kraft);
+    margin-top: 0.3rem;
+  }
+
+  /* ── SEPARATEUR ── */
+  .sep {
+    border: none;
+    border-top: 1px solid var(--kraft-light);
+    margin: 1.5rem 0;
+  }
+
+  /* ── FICHIERS ── */
+  .files-manager {
+    border: 1px solid var(--kraft-light);
+    overflow: hidden;
+  }
+
+  .files-header {
+    background: var(--blanc);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--kraft-light);
+  }
+
+  .files-header-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--kraft-dark);
+  }
+
+  .files-dl-all {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--graphite-lt);
+    background: none;
+    border: 1px solid var(--kraft-light);
+    cursor: pointer;
+    padding: 0.2rem 0.6rem;
+    transition: all 0.2s;
+    letter-spacing: 0.1em;
+  }
+  .files-dl-all:hover { border-color: var(--kraft); color: var(--kraft); }
+
+  .file-row {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--blanc);
+    transition: background 0.15s;
+  }
+  .file-row:last-child { border-bottom: none; }
+  .file-row:hover { background: var(--blanc); }
+
+  .file-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.55rem;
+    font-weight: 700;
+    flex-shrink: 0;
+    letter-spacing: 0;
+  }
+
+  .f-pdf { background: #FCEBEB; color: #A32D2D; }
+  .f-svg { background: #E6F1FB; color: #185FA5; }
+  .f-fc  { background: #FAEEDA; color: #633806; }
+  .f-py  { background: #EAF3DE; color: #3B6D11; }
+  .f-md  { background: #F1EFE8; color: #444441; }
+  .f-dxf { background: #EEEDFE; color: #3C3489; }
+
+  .file-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    color: var(--graphite);
+    flex: 1;
+  }
+
+  .file-size {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--graphite-lt);
+  }
+
+  .file-dl {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--kraft-dark);
+    background: none;
+    border: 1px solid var(--kraft-light);
+    cursor: pointer;
+    padding: 0.2rem 0.6rem;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+  .file-dl:hover { background: var(--kraft); color: var(--graphite); border-color: var(--kraft); }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    background: var(--graphite);
+    padding: 1.5rem 2.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .footer-logo {
+    font-family: 'Special Elite', cursive;
+    font-size: 0.9rem;
+    color: var(--kraft);
+  }
+
+  .footer-meta {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--graphite-lt);
+    text-align: right;
+    letter-spacing: 0.08em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     ↓↓↓  ZONE À MODIFIER — AJOUTEZ VOS PROJETS ICI  ↓↓↓
+════════════════════════════════════════════════════════ -->
+<script>
+const PROJETS = [
+
+  // ── PROJET 1 ── Copiez-collez ce bloc pour chaque nouveau projet
+  {
+    num:    "01",
+    titre:  "Abri de jardin auto-construit",
+    type:   "Étude de faisabilité",
+    statut: "termine",          // "termine" | "en-cours" | "a-venir"
+    tags:   ["Bois", "Structure", "Auto-construction"],
+    photo:  "",                 // ex: "photos/abri.jpg" — laissez vide si pas de photo
+    materiaux: [
+      { nom: "Épicéa raboté",      quantite: "12 ml" },
+      { nom: "Lambourdes 45×70",   quantite: "8 ml"  },
+      { nom: "Bac acier galva",    quantite: "6 m²"  },
+      { nom: "Visserie inox",      quantite: "1 boîte"},
+      { nom: "Ancrage béton",      quantite: "4 pcs" },
+    ],
+    outils: [
+      "Scie circulaire",
+      "Niveau laser",
+      "Visseuse — 18V min",
+      "Équerre de charpentier",
+    ],
+    etapes: [
+      { titre: "Brief & mesures terrain",   desc: "Relevé des cotes sur site, identification des contraintes (voisinage, PLU, orientation). Discussion avec le client sur ses besoins réels.", date: "Semaine 1", statut: "done"   },
+      { titre: "Modélisation 3D & plans",   desc: "Création du modèle FreeCAD, génération des plans d'exécution côtés, calcul de la liste de débit bois.", date: "Semaine 2", statut: "done"   },
+      { titre: "Validation & ajustements",  desc: "Aller-retour avec le client, modification de la hauteur de faîtage, ajout d'une fenêtre latérale.", date: "Semaine 3", statut: "done"   },
+      { titre: "Livraison des sources",     desc: "Transmission de tous les fichiers sources, documentation de construction, réponses aux questions en cours de chantier.", date: "Semaine 4", statut: "active" },
+    ],
+    fichiers: [
+      { nom: "plans-execution-v2.pdf",   type: "pdf", taille: "2.4 Mo", url: "#" },
+      { nom: "modele-abri.FCStd",        type: "fc",  taille: "1.1 Mo", url: "#" },
+      { nom: "plan-masse.svg",           type: "svg", taille: "340 Ko", url: "#" },
+      { nom: "guide-construction.md",    type: "md",  taille: "18 Ko",  url: "#" },
+    ],
+  },
+
+  // ── PROJET 2 ──
+  {
+    num:    "02",
+    titre:  "Table basse en acier plié",
+    type:   "Conception / Plans",
+    statut: "en-cours",
+    tags:   ["Métal", "Soudure", "Mobilier"],
+    photo:  "",
+    materiaux: [
+      { nom: "Tôle acier 3mm",   quantite: "1 m²"  },
+      { nom: "Tube carré 40×40", quantite: "3 ml"  },
+      { nom: "Peinture époxy",   quantite: "0.5 L" },
+    ],
+    outils: [
+      "Poste à souder MIG",
+      "Meuleuse d'angle",
+      "Plieuse (location)",
+    ],
+    etapes: [
+      { titre: "Conception du gabarit",  desc: "Définition des angles de pliage, simulation des contraintes, choix de l'épaisseur.", date: "Semaine 1", statut: "done"   },
+      { titre: "Plans de débit",         desc: "Génération des plans de découpe laser optimisés pour minimiser les chutes.", date: "Semaine 2", statut: "active" },
+      { titre: "Prototype & tests",      desc: "Fabrication d'un prototype en carton, validation des proportions avec le client.", date: "Semaine 3", statut: ""      },
+      { titre: "Livraison des sources",  desc: "Plans DXF pour découpe laser, documentation d'assemblage.", date: "Semaine 4", statut: ""      },
+    ],
+    fichiers: [
+      { nom: "gabarit-table.dxf", type: "dxf", taille: "— en cours", url: "#" },
+    ],
+  },
+
+  // ── PROJET 3 ──
+  {
+    num:    "03",
+    titre:  "Extension de maison légère",
+    type:   "Conseil en ingénierie",
+    statut: "a-venir",
+    tags:   ["Structure", "Bois", "Ingénierie"],
+    photo:  "",
+    materiaux: [],
+    outils: [],
+    etapes: [
+      { titre: "Brief initial",          desc: "À planifier.", date: "TBD", statut: "" },
+      { titre: "Étude de faisabilité",   desc: "À planifier.", date: "TBD", statut: "" },
+      { titre: "Plans d'exécution",      desc: "À planifier.", date: "TBD", statut: "" },
+      { titre: "Livraison",              desc: "À planifier.", date: "TBD", statut: "" },
+    ],
+    fichiers: [],
+  },
+
+];
+</script>
+<!-- ↑↑↑  FIN DE LA ZONE À MODIFIER  ↑↑↑ -->
+
+
+<!-- ═══════════════ HTML ═══════════════ -->
+<nav>
+  <a href="https://atelier-des-ebauches.fr" class="nav-logo">[AÉ] L'Atelier des Ébauches</a>
+  <ul class="nav-links">
+    <li><a href="https://atelier-des-ebauches.fr">Site principal</a></li>
+    <li><a href="https://github.com/Atelier-des-Ebauches">GitHub</a></li>
+    <li><a href="https://atelier-des-ebauches.fr/#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">// Projets open source — Fichiers sources transmis intégralement</div>
+    <h1>Les <span>ébauches</span><br>en accès libre</h1>
+    <p class="hero-sub">Chaque projet documenté, chaque fichier partagé.<br>Cliquez sur un projet pour tout voir.</p>
+  </div>
+</div>
+
+<main>
+  <div class="section-label">// Sélection de projets</div>
+  <div class="projects-grid" id="projects-grid"></div>
+  <div id="details-container"></div>
+</main>
+
+<footer>
+  <div class="footer-logo">[AÉ] L'Atelier des Ébauches</div>
+  <div class="footer-meta">
+    Prix libre · Open Source · Fichiers sources transmis intégralement<br>
+    contact@atelier-des-ebauches.fr · atelier-des-ebauches.fr
+  </div>
+</footer>
+
+
+<!-- ═══════════════ JS ═══════════════ -->
+<script>
+  const statutLabel = { "termine": "Terminé", "en-cours": "En cours", "a-venir": "À venir" };
+  const typeIcon    = { "pdf": "PDF", "svg": "SVG", "fc": "FC", "py": "PY", "md": "MD", "dxf": "DXF" };
+
+  let openId = 0;
+
+  // ── Génération des cartes
+  function renderCards() {
+    const grid = document.getElementById('projects-grid');
+    grid.innerHTML = PROJETS.map((p, i) => `
+      <div class="project-card ${i === openId ? 'active' : ''}" id="card-${i}" onclick="toggleProject(${i})">
+        <div class="card-img">
+          ${p.photo ? `<img src="${p.photo}" alt="${p.titre}">` : '[ Photo à venir ]'}
+          <div class="card-img-tag">${p.tags[0] || ''}</div>
+        </div>
+        <div class="card-body">
+          <div class="card-num">// ${p.num}</div>
+          <div class="card-title">${p.titre}</div>
+          <div class="card-type">${p.type}</div>
+          <span class="card-status s-${p.statut}">${statutLabel[p.statut]}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── Génération des détails
+  function renderDetails() {
+    const container = document.getElementById('details-container');
+    container.innerHTML = PROJETS.map((p, i) => `
+      <div class="detail ${i === openId ? 'visible' : ''}" id="detail-${i}">
+        <div class="detail-header">
+          <div>
+            <div class="detail-title">${p.titre}</div>
+            <div class="detail-sub">// ${p.num} — ${p.tags.join(' · ')}</div>
+          </div>
+          <button class="detail-close" onclick="closeProject(${i})">✕ Fermer</button>
+        </div>
+        <div class="detail-body">
+
+          ${(p.materiaux.length || p.outils.length) ? `
+          <div class="recipe-grid">
+            <div>
+              ${p.materiaux.length ? `
+              <div class="recipe-block-label">// Matériaux</div>
+              ${p.materiaux.map(m => `
+                <div class="ingredient">
+                  <div class="ingredient-dot"></div>
+                  ${m.nom}
+                  ${m.quantite ? `<span class="ingredient-qty">${m.quantite}</span>` : ''}
+                </div>
+              `).join('')}
+              ` : ''}
+              ${p.outils.length ? `
+              <div class="recipe-block-label" style="margin-top:1rem;">// Outils</div>
+              ${p.outils.map(o => `
+                <div class="ingredient">
+                  <div class="ingredient-dot"></div>
+                  ${o}
+                </div>
+              `).join('')}
+              ` : ''}
+            </div>
+            <div>
+              <div class="recipe-block-label">// Étapes du projet</div>
+              ${p.etapes.map((e, j) => `
+                <div class="tl-step" onclick="toggleStep(${i},${j})">
+                  <div class="tl-left">
+                    <div class="tl-dot ${e.statut}">${e.statut === 'done' ? '✓' : j + 1}</div>
+                    ${j < p.etapes.length - 1 ? '<div class="tl-line"></div>' : ''}
+                  </div>
+                  <div class="tl-content">
+                    <div class="tl-step-title">${e.titre}</div>
+                    <div class="tl-step-desc ${j === 0 ? 'open' : ''}">${e.desc}</div>
+                    <div class="tl-step-date">${e.date}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+          ` : `<p style="font-family:'Courier Prime',monospace;font-size:0.8rem;color:var(--graphite-lt);font-style:italic;margin-bottom:1.5rem;">Ce projet n'a pas encore démarré — les informations seront ajoutées prochainement.</p>`}
+
+          ${p.fichiers.length ? `
+          <hr class="sep">
+          <div class="recipe-block-label">// Fichiers sources</div>
+          <div class="files-manager">
+            <div class="files-header">
+              <span class="files-header-label">${p.fichiers.length} fichier${p.fichiers.length > 1 ? 's' : ''}</span>
+              <button class="files-dl-all">↓ Tout télécharger</button>
+            </div>
+            ${p.fichiers.map(f => `
+              <div class="file-row">
+                <div class="file-icon f-${f.type}">${typeIcon[f.type] || f.type.toUpperCase()}</div>
+                <span class="file-name">${f.nom}</span>
+                <span class="file-size">${f.taille}</span>
+                <a class="file-dl" href="${f.url}" download>↓</a>
+              </div>
+            `).join('')}
+          </div>
+          ` : ''}
+
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── Toggle projet
+  function toggleProject(i) {
+    if (openId === i) {
+      closeProject(i);
+      return;
+    }
+    openId = i;
+    renderCards();
+    renderDetails();
+    setTimeout(() => {
+      document.getElementById('detail-' + i).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+
+  function closeProject(i) {
+    openId = -1;
+    renderCards();
+    renderDetails();
+  }
+
+  // ── Toggle étape timeline
+  function toggleStep(proj, step) {
+    const detail = document.getElementById('detail-' + proj);
+    const descs  = detail.querySelectorAll('.tl-step-desc');
+    const isOpen = descs[step].classList.contains('open');
+    descs.forEach(d => d.classList.remove('open'));
+    if (!isOpen) descs[step].classList.add('open');
+  }
+
+  // ── Init
+  renderCards();
+  renderDetails();
+</script>
+
+</body>
+</html>
