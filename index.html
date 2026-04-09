@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>[AÉ] L'Atelier des Ébauches — Projets Open Source</title>
 <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
   :root {
@@ -16,6 +17,7 @@
     --kraft-light: #E8D5B0;
     --blanc:       #F5F0E8;
     --white:       #FFFFFF;
+    --red:         #C0392B;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -26,6 +28,7 @@
     color: var(--graphite);
     font-family: 'DM Sans', sans-serif;
     font-weight: 300;
+    min-height: 100vh;
   }
 
   body::before {
@@ -44,13 +47,14 @@
   nav {
     position: fixed;
     top: 0; left: 0; right: 0;
-    z-index: 100;
+    z-index: 200;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1rem 2.5rem;
     background: rgba(44,44,42,0.97);
     backdrop-filter: blur(8px);
+    gap: 1rem;
   }
 
   .nav-logo {
@@ -58,11 +62,18 @@
     font-size: 1rem;
     color: var(--kraft);
     text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
   }
 
   .nav-links {
     display: flex;
-    gap: 2rem;
+    gap: 1.5rem;
     list-style: none;
     font-family: 'Courier Prime', monospace;
     font-size: 0.7rem;
@@ -77,12 +88,64 @@
   }
   .nav-links a:hover { color: var(--kraft); }
 
+  .btn-login {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.45rem 1rem;
+    background: transparent;
+    color: var(--kraft);
+    border: 1px solid var(--kraft-dark);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .btn-login:hover { background: var(--kraft); color: var(--graphite); }
+
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    color: var(--graphite-lt);
+  }
+
+  .nav-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--kraft-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: var(--blanc);
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  .nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+  .btn-logout {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--graphite-lt);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    transition: color 0.2s;
+  }
+  .btn-logout:hover { color: var(--red); }
+
   /* ── HERO ── */
   .hero {
     position: relative;
     z-index: 1;
     background: var(--graphite);
-    padding: 7rem 2.5rem 4rem;
+    padding: 7rem 2.5rem 3.5rem;
     overflow: hidden;
   }
 
@@ -97,7 +160,16 @@
     pointer-events: none;
   }
 
-  .hero-inner { max-width: 1000px; margin: 0 auto; position: relative; z-index: 1; }
+  .hero-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 2rem;
+    align-items: end;
+  }
 
   .hero-tag {
     font-family: 'Courier Prime', monospace;
@@ -105,28 +177,89 @@
     letter-spacing: 0.25em;
     text-transform: uppercase;
     color: var(--kraft-dark);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
   }
 
   .hero h1 {
     font-family: 'Special Elite', cursive;
-    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-size: clamp(2rem, 5vw, 4rem);
     color: var(--blanc);
     line-height: 1.05;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
   }
 
   .hero h1 span { color: var(--kraft); }
 
   .hero-sub {
     font-family: 'Courier Prime', monospace;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--graphite-lt);
-    max-width: 50ch;
     line-height: 1.9;
     border-left: 2px solid var(--kraft);
     padding-left: 1rem;
+    max-width: 48ch;
   }
+
+  .btn-add-project {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.9rem 1.8rem;
+    background: var(--kraft);
+    color: var(--graphite);
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-weight: 700;
+  }
+  .btn-add-project:hover { background: var(--blanc); }
+
+  /* ── FILTRES & RECHERCHE ── */
+  .filters-bar {
+    position: relative;
+    z-index: 1;
+    background: var(--white);
+    border-bottom: 1px solid var(--kraft-light);
+    padding: 1rem 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .search-input {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--kraft-light);
+    background: var(--blanc);
+    color: var(--graphite);
+    outline: none;
+    flex: 1;
+    min-width: 200px;
+    transition: border-color 0.2s;
+  }
+  .search-input:focus { border-color: var(--kraft); }
+  .search-input::placeholder { color: var(--graphite-lt); }
+
+  .filter-btn {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.45rem 0.9rem;
+    background: transparent;
+    color: var(--graphite-lt);
+    border: 1px solid var(--kraft-light);
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .filter-btn:hover,
+  .filter-btn.active { background: var(--graphite); color: var(--kraft); border-color: var(--graphite); }
 
   /* ── MAIN ── */
   main {
@@ -134,7 +267,7 @@
     z-index: 1;
     max-width: 1000px;
     margin: 0 auto;
-    padding: 3rem 2.5rem;
+    padding: 2.5rem 2.5rem;
   }
 
   .section-label {
@@ -170,18 +303,8 @@
     transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
     overflow: hidden;
   }
-
-  .project-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(44,44,42,0.1);
-    border-color: var(--kraft);
-  }
-
-  .project-card.active {
-    border: 2px solid var(--kraft);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(44,44,42,0.1);
-  }
+  .project-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(44,44,42,0.1); border-color: var(--kraft); }
+  .project-card.active { border: 2px solid var(--kraft); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(44,44,42,0.1); }
 
   .card-img {
     height: 160px;
@@ -195,18 +318,11 @@
     position: relative;
     overflow: hidden;
   }
-
-  .card-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
+  .card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
   .card-img-tag {
     position: absolute;
-    top: 0.6rem;
-    left: 0.6rem;
+    top: 0.6rem; left: 0.6rem;
     background: var(--kraft);
     color: var(--graphite);
     font-family: 'Courier Prime', monospace;
@@ -217,29 +333,10 @@
   }
 
   .card-body { padding: 0.9rem 1rem 1rem; }
-
-  .card-num {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--kraft-dark);
-    letter-spacing: 0.2em;
-    margin-bottom: 0.3rem;
-  }
-
-  .card-title {
-    font-family: 'Special Elite', cursive;
-    font-size: 1.05rem;
-    color: var(--graphite);
-    margin-bottom: 0.3rem;
-    line-height: 1.3;
-  }
-
-  .card-type {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.68rem;
-    color: var(--graphite-lt);
-    margin-bottom: 0.6rem;
-  }
+  .card-num { font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--kraft-dark); letter-spacing: 0.2em; margin-bottom: 0.3rem; }
+  .card-title { font-family: 'Special Elite', cursive; font-size: 1.05rem; color: var(--graphite); margin-bottom: 0.3rem; line-height: 1.3; }
+  .card-type { font-family: 'Courier Prime', monospace; font-size: 0.68rem; color: var(--graphite-lt); margin-bottom: 0.6rem; }
+  .card-author { font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--graphite-lt); margin-bottom: 0.5rem; }
 
   .card-status {
     display: inline-block;
@@ -249,20 +346,12 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
-
   .s-termine  { background: #EAF3DE; color: #27500A; }
   .s-en-cours { background: #FAEEDA; color: #633806; }
   .s-a-venir  { background: #F1EFE8; color: #444441; }
 
   /* ── DETAIL ── */
-  .detail {
-    display: none;
-    background: var(--white);
-    border: 1px solid var(--kraft-light);
-    margin-bottom: 3rem;
-    overflow: hidden;
-  }
-
+  .detail { display: none; background: var(--white); border: 1px solid var(--kraft-light); margin-bottom: 3rem; overflow: hidden; }
   .detail.visible { display: block; }
 
   .detail-header {
@@ -273,548 +362,735 @@
     align-items: flex-start;
     gap: 1rem;
   }
-
-  .detail-title {
-    font-family: 'Special Elite', cursive;
-    font-size: 1.6rem;
-    color: var(--blanc);
-    margin-bottom: 0.3rem;
-  }
-
-  .detail-sub {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.68rem;
-    color: var(--kraft);
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-  }
-
-  .detail-close {
-    background: transparent;
-    border: 1px solid var(--graphite-mid);
-    color: var(--graphite-lt);
-    cursor: pointer;
-    padding: 0.4rem 0.8rem;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.7rem;
-    letter-spacing: 0.1em;
-    transition: all 0.2s;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
+  .detail-title { font-family: 'Special Elite', cursive; font-size: 1.6rem; color: var(--blanc); margin-bottom: 0.3rem; }
+  .detail-sub { font-family: 'Courier Prime', monospace; font-size: 0.68rem; color: var(--kraft); letter-spacing: 0.2em; text-transform: uppercase; }
+  .detail-close { background: transparent; border: 1px solid var(--graphite-mid); color: var(--graphite-lt); cursor: pointer; padding: 0.4rem 0.8rem; font-family: 'Courier Prime', monospace; font-size: 0.7rem; letter-spacing: 0.1em; transition: all 0.2s; white-space: nowrap; flex-shrink: 0; }
   .detail-close:hover { border-color: var(--kraft); color: var(--kraft); }
-
   .detail-body { padding: 2rem; }
 
   /* ── RECETTE ── */
-  .recipe-grid {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2.5rem;
-    margin-bottom: 2rem;
-  }
-
+  .recipe-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 2.5rem; margin-bottom: 2rem; }
   @media (max-width: 640px) { .recipe-grid { grid-template-columns: 1fr; } }
+  .recipe-block-label { font-family: 'Courier Prime', monospace; font-size: 0.65rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--kraft-dark); margin-bottom: 0.8rem; }
 
-  .recipe-block-label {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--kraft-dark);
-    margin-bottom: 0.8rem;
-  }
-
-  .ingredient {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.45rem 0;
-    border-bottom: 1px solid var(--blanc);
-    font-size: 0.82rem;
-    color: var(--graphite-mid);
-  }
-
-  .ingredient-dot {
-    width: 6px;
-    height: 6px;
-    background: var(--kraft);
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .ingredient-qty {
-    margin-left: auto;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.7rem;
-    color: var(--kraft-dark);
-    white-space: nowrap;
-  }
+  .ingredient { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0; border-bottom: 1px solid var(--blanc); font-size: 0.82rem; color: var(--graphite-mid); }
+  .ingredient-dot { width: 6px; height: 6px; background: var(--kraft); border-radius: 50%; flex-shrink: 0; }
+  .ingredient-qty { margin-left: auto; font-family: 'Courier Prime', monospace; font-size: 0.7rem; color: var(--kraft-dark); white-space: nowrap; }
 
   /* ── TIMELINE ── */
-  .tl-step {
-    display: flex;
-    gap: 1rem;
-    cursor: pointer;
-  }
-
-  .tl-left {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 30px;
-    flex-shrink: 0;
-  }
-
-  .tl-dot {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid var(--kraft-light);
-    background: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--graphite-lt);
-    flex-shrink: 0;
-    transition: all 0.2s;
-  }
-
-  .tl-dot.done  { background: var(--graphite); border-color: var(--graphite); color: var(--kraft); }
-  .tl-dot.active{ background: var(--kraft);    border-color: var(--kraft);    color: var(--graphite); font-weight: 700; }
-
-  .tl-line {
-    width: 1px;
-    background: var(--kraft-light);
-    flex: 1;
-    min-height: 14px;
-  }
-
+  .tl-step { display: flex; gap: 1rem; cursor: pointer; }
+  .tl-left { display: flex; flex-direction: column; align-items: center; width: 30px; flex-shrink: 0; }
+  .tl-dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--kraft-light); background: var(--white); display: flex; align-items: center; justify-content: center; font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--graphite-lt); flex-shrink: 0; transition: all 0.2s; }
+  .tl-dot.done   { background: var(--graphite); border-color: var(--graphite); color: var(--kraft); }
+  .tl-dot.active { background: var(--kraft);    border-color: var(--kraft);    color: var(--graphite); font-weight: 700; }
+  .tl-line { width: 1px; background: var(--kraft-light); flex: 1; min-height: 14px; }
   .tl-content { padding: 0.1rem 0 1.2rem; flex: 1; }
-
-  .tl-step-title {
-    font-family: 'Special Elite', cursive;
-    font-size: 0.95rem;
-    color: var(--graphite);
-    margin-bottom: 0.2rem;
-  }
-
-  .tl-step-desc {
-    font-size: 0.82rem;
-    color: var(--graphite-lt);
-    line-height: 1.7;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.35s ease;
-  }
-
+  .tl-step-title { font-family: 'Special Elite', cursive; font-size: 0.95rem; color: var(--graphite); margin-bottom: 0.2rem; }
+  .tl-step-desc { font-size: 0.82rem; color: var(--graphite-lt); line-height: 1.7; max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
   .tl-step-desc.open { max-height: 200px; }
+  .tl-step-date { font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--kraft); margin-top: 0.3rem; }
 
-  .tl-step-date {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--kraft);
-    margin-top: 0.3rem;
-  }
-
-  /* ── SEPARATEUR ── */
-  .sep {
-    border: none;
-    border-top: 1px solid var(--kraft-light);
-    margin: 1.5rem 0;
-  }
+  .sep { border: none; border-top: 1px solid var(--kraft-light); margin: 1.5rem 0; }
 
   /* ── FICHIERS ── */
-  .files-manager {
-    border: 1px solid var(--kraft-light);
-    overflow: hidden;
-  }
-
-  .files-header {
-    background: var(--blanc);
-    padding: 0.6rem 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--kraft-light);
-  }
-
-  .files-header-label {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--kraft-dark);
-  }
-
-  .files-dl-all {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--graphite-lt);
-    background: none;
-    border: 1px solid var(--kraft-light);
-    cursor: pointer;
-    padding: 0.2rem 0.6rem;
-    transition: all 0.2s;
-    letter-spacing: 0.1em;
-  }
-  .files-dl-all:hover { border-color: var(--kraft); color: var(--kraft); }
-
-  .file-row {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 0.6rem 1rem;
-    border-bottom: 1px solid var(--blanc);
-    transition: background 0.15s;
-  }
+  .files-manager { border: 1px solid var(--kraft-light); overflow: hidden; }
+  .files-header { background: var(--blanc); padding: 0.6rem 1rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--kraft-light); }
+  .files-header-label { font-family: 'Courier Prime', monospace; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--kraft-dark); }
+  .file-row { display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 1rem; border-bottom: 1px solid var(--blanc); transition: background 0.15s; }
   .file-row:last-child { border-bottom: none; }
   .file-row:hover { background: var(--blanc); }
-
-  .file-icon {
-    width: 26px;
-    height: 26px;
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.55rem;
-    font-weight: 700;
-    flex-shrink: 0;
-    letter-spacing: 0;
-  }
-
+  .file-icon { width: 26px; height: 26px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-family: 'Courier Prime', monospace; font-size: 0.55rem; font-weight: 700; flex-shrink: 0; }
   .f-pdf { background: #FCEBEB; color: #A32D2D; }
   .f-svg { background: #E6F1FB; color: #185FA5; }
   .f-fc  { background: #FAEEDA; color: #633806; }
   .f-py  { background: #EAF3DE; color: #3B6D11; }
   .f-md  { background: #F1EFE8; color: #444441; }
   .f-dxf { background: #EEEDFE; color: #3C3489; }
+  .f-zip { background: #F1EFE8; color: #444441; }
+  .file-name { font-family: 'Courier Prime', monospace; font-size: 0.8rem; color: var(--graphite); flex: 1; }
+  .file-size { font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--graphite-lt); }
+  .file-dl { font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--kraft-dark); background: none; border: 1px solid var(--kraft-light); cursor: pointer; padding: 0.2rem 0.6rem; transition: all 0.2s; text-decoration: none; }
+  .file-dl:hover { background: var(--kraft); color: var(--graphite); border-color: var(--kraft); }
 
-  .file-name {
+  /* ── MODAL AUTH ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(44,44,42,0.85);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-overlay.visible { display: flex; }
+
+  .modal {
+    background: var(--blanc);
+    padding: 2.5rem;
+    max-width: 420px;
+    width: 90%;
+    position: relative;
+  }
+
+  .modal-title { font-family: 'Special Elite', cursive; font-size: 1.6rem; color: var(--graphite); margin-bottom: 0.5rem; }
+  .modal-sub { font-family: 'Courier Prime', monospace; font-size: 0.75rem; color: var(--graphite-lt); margin-bottom: 2rem; line-height: 1.7; }
+  .modal-close { position: absolute; top: 1rem; right: 1rem; background: none; border: none; cursor: pointer; font-family: 'Courier Prime', monospace; font-size: 0.75rem; color: var(--graphite-lt); }
+  .modal-close:hover { color: var(--red); }
+
+  .btn-oauth {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--kraft-light);
+    background: var(--white);
+    cursor: pointer;
     font-family: 'Courier Prime', monospace;
     font-size: 0.8rem;
     color: var(--graphite);
-    flex: 1;
-  }
-
-  .file-size {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--graphite-lt);
-  }
-
-  .file-dl {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--kraft-dark);
-    background: none;
-    border: 1px solid var(--kraft-light);
-    cursor: pointer;
-    padding: 0.2rem 0.6rem;
+    margin-bottom: 0.8rem;
     transition: all 0.2s;
-    text-decoration: none;
+    letter-spacing: 0.05em;
   }
-  .file-dl:hover { background: var(--kraft); color: var(--graphite); border-color: var(--kraft); }
+  .btn-oauth:hover { border-color: var(--kraft); background: var(--blanc); }
+  .btn-oauth svg { flex-shrink: 0; }
 
-  /* ── FOOTER ── */
-  footer {
+  .modal-divider { text-align: center; font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--graphite-lt); margin: 1.2rem 0; letter-spacing: 0.2em; }
+  .modal-note { font-family: 'Courier Prime', monospace; font-size: 0.68rem; color: var(--graphite-lt); text-align: center; line-height: 1.7; border-top: 1px solid var(--kraft-light); padding-top: 1.2rem; margin-top: 0.5rem; }
+
+  /* ── MODAL PROJET ── */
+  .modal-projet { max-width: 700px; max-height: 90vh; overflow-y: auto; }
+
+  .form-group { margin-bottom: 1.2rem; }
+  .form-label { font-family: 'Courier Prime', monospace; font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--kraft-dark); display: block; margin-bottom: 0.4rem; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--kraft-light);
+    background: var(--white);
+    color: var(--graphite);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--kraft); }
+  .form-textarea { min-height: 100px; resize: vertical; }
+  .form-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .form-section-label { font-family: 'Courier Prime', monospace; font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--kraft-dark); margin: 1.5rem 0 0.8rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--kraft-light); }
+
+  .dynamic-list { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .dynamic-item { display: flex; gap: 0.5rem; align-items: center; }
+  .dynamic-item input { flex: 1; }
+  .dynamic-item .qty-input { width: 100px; flex: none; }
+  .btn-remove { background: none; border: 1px solid #FCEBEB; color: #A32D2D; cursor: pointer; padding: 0.4rem 0.6rem; font-family: 'Courier Prime', monospace; font-size: 0.7rem; transition: all 0.2s; }
+  .btn-remove:hover { background: #FCEBEB; }
+  .btn-add-item { font-family: 'Courier Prime', monospace; font-size: 0.68rem; letter-spacing: 0.1em; color: var(--kraft-dark); background: none; border: 1px dashed var(--kraft-light); cursor: pointer; padding: 0.4rem 0.8rem; transition: all 0.2s; width: 100%; text-align: center; }
+  .btn-add-item:hover { border-color: var(--kraft); color: var(--kraft); }
+
+  .btn-submit { width: 100%; font-family: 'Courier Prime', monospace; font-size: 0.82rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 1rem; background: var(--graphite); color: var(--kraft); border: none; cursor: pointer; transition: background 0.2s; margin-top: 1.5rem; font-weight: 700; }
+  .btn-submit:hover { background: var(--kraft-dark); }
+  .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ── BANDEAU IDÉE ── */
+  .idea-banner {
     position: relative;
     z-index: 1;
     background: var(--graphite);
-    padding: 1.5rem 2.5rem;
+    padding: 2rem 2.5rem;
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
     flex-wrap: wrap;
-    gap: 0.5rem;
   }
+  .idea-banner-text { font-family: 'Special Elite', cursive; font-size: 1.2rem; color: var(--blanc); }
+  .idea-banner-sub { font-family: 'Courier Prime', monospace; font-size: 0.75rem; color: var(--graphite-lt); margin-top: 0.3rem; }
+  .btn-idea { font-family: 'Courier Prime', monospace; font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.8rem 1.6rem; background: transparent; color: var(--kraft); border: 1px solid var(--kraft-dark); cursor: pointer; text-decoration: none; transition: all 0.2s; white-space: nowrap; }
+  .btn-idea:hover { background: var(--kraft); color: var(--graphite); }
 
-  .footer-logo {
-    font-family: 'Special Elite', cursive;
-    font-size: 0.9rem;
-    color: var(--kraft);
-  }
+  /* ── FOOTER ── */
+  footer { position: relative; z-index: 1; background: var(--graphite); padding: 1.2rem 2.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+  .footer-logo { font-family: 'Special Elite', cursive; font-size: 0.9rem; color: var(--kraft); }
+  .footer-meta { font-family: 'Courier Prime', monospace; font-size: 0.65rem; color: var(--graphite-lt); text-align: right; }
 
-  .footer-meta {
-    font-family: 'Courier Prime', monospace;
-    font-size: 0.65rem;
-    color: var(--graphite-lt);
-    text-align: right;
-    letter-spacing: 0.08em;
-  }
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 4rem 2rem; }
+  .empty-state-title { font-family: 'Special Elite', cursive; font-size: 1.4rem; color: var(--graphite); margin-bottom: 0.5rem; }
+  .empty-state-sub { font-family: 'Courier Prime', monospace; font-size: 0.78rem; color: var(--graphite-lt); }
+
+  /* ── TOAST ── */
+  .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--graphite); color: var(--kraft); font-family: 'Courier Prime', monospace; font-size: 0.8rem; padding: 0.8rem 1.4rem; z-index: 1000; transform: translateY(100px); opacity: 0; transition: all 0.3s; }
+  .toast.visible { transform: translateY(0); opacity: 1; }
+  .toast.error { background: var(--red); color: var(--blanc); }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════════════════
-     ↓↓↓  ZONE À MODIFIER — AJOUTEZ VOS PROJETS ICI  ↓↓↓
-════════════════════════════════════════════════════════ -->
-<script>
-const PROJETS = [
-
-  // ── PROJET 1 ── Copiez-collez ce bloc pour chaque nouveau projet
-  {
-    num:    "01",
-    titre:  "Abri de jardin auto-construit",
-    type:   "Étude de faisabilité",
-    statut: "termine",          // "termine" | "en-cours" | "a-venir"
-    tags:   ["Bois", "Structure", "Auto-construction"],
-    photo:  "",                 // ex: "photos/abri.jpg" — laissez vide si pas de photo
-    materiaux: [
-      { nom: "Épicéa raboté",      quantite: "12 ml" },
-      { nom: "Lambourdes 45×70",   quantite: "8 ml"  },
-      { nom: "Bac acier galva",    quantite: "6 m²"  },
-      { nom: "Visserie inox",      quantite: "1 boîte"},
-      { nom: "Ancrage béton",      quantite: "4 pcs" },
-    ],
-    outils: [
-      "Scie circulaire",
-      "Niveau laser",
-      "Visseuse — 18V min",
-      "Équerre de charpentier",
-    ],
-    etapes: [
-      { titre: "Brief & mesures terrain",   desc: "Relevé des cotes sur site, identification des contraintes (voisinage, PLU, orientation). Discussion avec le client sur ses besoins réels.", date: "Semaine 1", statut: "done"   },
-      { titre: "Modélisation 3D & plans",   desc: "Création du modèle FreeCAD, génération des plans d'exécution côtés, calcul de la liste de débit bois.", date: "Semaine 2", statut: "done"   },
-      { titre: "Validation & ajustements",  desc: "Aller-retour avec le client, modification de la hauteur de faîtage, ajout d'une fenêtre latérale.", date: "Semaine 3", statut: "done"   },
-      { titre: "Livraison des sources",     desc: "Transmission de tous les fichiers sources, documentation de construction, réponses aux questions en cours de chantier.", date: "Semaine 4", statut: "active" },
-    ],
-    fichiers: [
-      { nom: "plans-execution-v2.pdf",   type: "pdf", taille: "2.4 Mo", url: "#" },
-      { nom: "modele-abri.FCStd",        type: "fc",  taille: "1.1 Mo", url: "#" },
-      { nom: "plan-masse.svg",           type: "svg", taille: "340 Ko", url: "#" },
-      { nom: "guide-construction.md",    type: "md",  taille: "18 Ko",  url: "#" },
-    ],
-  },
-
-  // ── PROJET 2 ──
-  {
-    num:    "02",
-    titre:  "Table basse en acier plié",
-    type:   "Conception / Plans",
-    statut: "en-cours",
-    tags:   ["Métal", "Soudure", "Mobilier"],
-    photo:  "",
-    materiaux: [
-      { nom: "Tôle acier 3mm",   quantite: "1 m²"  },
-      { nom: "Tube carré 40×40", quantite: "3 ml"  },
-      { nom: "Peinture époxy",   quantite: "0.5 L" },
-    ],
-    outils: [
-      "Poste à souder MIG",
-      "Meuleuse d'angle",
-      "Plieuse (location)",
-    ],
-    etapes: [
-      { titre: "Conception du gabarit",  desc: "Définition des angles de pliage, simulation des contraintes, choix de l'épaisseur.", date: "Semaine 1", statut: "done"   },
-      { titre: "Plans de débit",         desc: "Génération des plans de découpe laser optimisés pour minimiser les chutes.", date: "Semaine 2", statut: "active" },
-      { titre: "Prototype & tests",      desc: "Fabrication d'un prototype en carton, validation des proportions avec le client.", date: "Semaine 3", statut: ""      },
-      { titre: "Livraison des sources",  desc: "Plans DXF pour découpe laser, documentation d'assemblage.", date: "Semaine 4", statut: ""      },
-    ],
-    fichiers: [
-      { nom: "gabarit-table.dxf", type: "dxf", taille: "— en cours", url: "#" },
-    ],
-  },
-
-  // ── PROJET 3 ──
-  {
-    num:    "03",
-    titre:  "Extension de maison légère",
-    type:   "Conseil en ingénierie",
-    statut: "a-venir",
-    tags:   ["Structure", "Bois", "Ingénierie"],
-    photo:  "",
-    materiaux: [],
-    outils: [],
-    etapes: [
-      { titre: "Brief initial",          desc: "À planifier.", date: "TBD", statut: "" },
-      { titre: "Étude de faisabilité",   desc: "À planifier.", date: "TBD", statut: "" },
-      { titre: "Plans d'exécution",      desc: "À planifier.", date: "TBD", statut: "" },
-      { titre: "Livraison",              desc: "À planifier.", date: "TBD", statut: "" },
-    ],
-    fichiers: [],
-  },
-
-];
-</script>
-<!-- ↑↑↑  FIN DE LA ZONE À MODIFIER  ↑↑↑ -->
-
-
-<!-- ═══════════════ HTML ═══════════════ -->
+<!-- ── NAV ── -->
 <nav>
   <a href="https://atelier-des-ebauches.fr" class="nav-logo">[AÉ] L'Atelier des Ébauches</a>
-  <ul class="nav-links">
-    <li><a href="https://atelier-des-ebauches.fr">Site principal</a></li>
-    <li><a href="https://github.com/Atelier-des-Ebauches">GitHub</a></li>
-    <li><a href="https://atelier-des-ebauches.fr/#contact">Contact</a></li>
-  </ul>
+  <div class="nav-right">
+    <ul class="nav-links">
+      <li><a href="https://atelier-des-ebauches.fr">Site principal</a></li>
+      <li><a href="https://github.com/Atelier-des-Ebauches">GitHub</a></li>
+    </ul>
+    <div id="nav-auth">
+      <button class="btn-login" onclick="openAuthModal()">Se connecter</button>
+    </div>
+  </div>
 </nav>
 
+<!-- ── HERO ── -->
 <div class="hero">
   <div class="hero-inner">
-    <div class="hero-tag">// Projets open source — Fichiers sources transmis intégralement</div>
-    <h1>Les <span>ébauches</span><br>en accès libre</h1>
-    <p class="hero-sub">Chaque projet documenté, chaque fichier partagé.<br>Cliquez sur un projet pour tout voir.</p>
+    <div>
+      <div class="hero-tag">// Projets open source — Fichiers sources transmis intégralement</div>
+      <h1>Les <span>ébauches</span><br>en accès libre</h1>
+      <p class="hero-sub">Chaque projet documenté, chaque fichier partagé.<br>Mobilier, code, domotique, structure — tout est bienvenu.</p>
+    </div>
+    <button class="btn-add-project" onclick="handleAddProject()">+ Ajouter un projet</button>
   </div>
 </div>
 
+<!-- ── FILTRES ── -->
+<div class="filters-bar">
+  <input class="search-input" id="search-input" type="text" placeholder="Rechercher un projet..." oninput="filterProjects()">
+  <button class="filter-btn active" onclick="setFilter('tous', this)">Tous</button>
+  <button class="filter-btn" onclick="setFilter('mobilier', this)">Mobilier</button>
+  <button class="filter-btn" onclick="setFilter('structure', this)">Structure</button>
+  <button class="filter-btn" onclick="setFilter('electronique', this)">Électronique</button>
+  <button class="filter-btn" onclick="setFilter('code', this)">Code</button>
+  <button class="filter-btn" onclick="setFilter('domotique', this)">Domotique</button>
+  <button class="filter-btn" onclick="setFilter('autre', this)">Autre</button>
+</div>
+
+<!-- ── MAIN ── -->
 <main>
-  <div class="section-label">// Sélection de projets</div>
+  <div class="section-label" id="projects-label">// Chargement des projets...</div>
   <div class="projects-grid" id="projects-grid"></div>
   <div id="details-container"></div>
 </main>
 
+<!-- ── BANDEAU IDÉE ── -->
+<div class="idea-banner">
+  <div>
+    <div class="idea-banner-text">Vous avez une idée mais pas les compétences ?</div>
+    <div class="idea-banner-sub">// L'Atelier des Ébauches peut vous aider à la concrétiser</div>
+  </div>
+  <a href="https://atelier-des-ebauches.fr/#contact" class="btn-idea">Parlez-moi de votre idée →</a>
+</div>
+
+<!-- ── FOOTER ── -->
 <footer>
   <div class="footer-logo">[AÉ] L'Atelier des Ébauches</div>
   <div class="footer-meta">
     Prix libre · Open Source · Fichiers sources transmis intégralement<br>
-    contact@atelier-des-ebauches.fr · atelier-des-ebauches.fr
+    contact@atelier-des-ebauches.fr
   </div>
 </footer>
 
+<!-- ── MODAL AUTH ── -->
+<div class="modal-overlay" id="modal-auth">
+  <div class="modal">
+    <button class="modal-close" onclick="closeAuthModal()">✕ Fermer</button>
+    <div class="modal-title">Se connecter</div>
+    <p class="modal-sub">Pour publier un projet vous avez besoin d'un compte.<br>La lecture est libre et sans inscription.</p>
 
-<!-- ═══════════════ JS ═══════════════ -->
+    <button class="btn-oauth" onclick="loginWith('github')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#2C2C2A"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      Continuer avec GitHub
+    </button>
+
+    <button class="btn-oauth" onclick="loginWith('google')">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continuer avec Google
+    </button>
+
+    <div class="modal-note">
+      En vous connectant vous acceptez que votre nom et avatar soient affichés sur vos projets publiés.
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL PROJET ── -->
+<div class="modal-overlay" id="modal-projet">
+  <div class="modal modal-projet">
+    <button class="modal-close" onclick="closeProjetModal()">✕ Fermer</button>
+    <div class="modal-title">Nouveau projet</div>
+    <p class="modal-sub">Décrivez votre projet — même imparfait, même en cours.</p>
+
+    <div class="form-group">
+      <label class="form-label">Titre du projet *</label>
+      <input class="form-input" id="f-titre" type="text" placeholder="Ex: Table basse en béton ciré">
+    </div>
+
+    <div class="form-grid2">
+      <div class="form-group">
+        <label class="form-label">Catégorie *</label>
+        <select class="form-select" id="f-categorie">
+          <option value="">— Choisir —</option>
+          <option value="mobilier">Mobilier</option>
+          <option value="structure">Structure</option>
+          <option value="electronique">Électronique</option>
+          <option value="code">Code</option>
+          <option value="domotique">Domotique</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Statut *</label>
+        <select class="form-select" id="f-statut">
+          <option value="termine">Terminé</option>
+          <option value="en-cours">En cours</option>
+          <option value="a-venir">À venir</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Description *</label>
+      <textarea class="form-textarea" id="f-description" placeholder="Décrivez le projet, son contexte, l'idée de départ..."></textarea>
+    </div>
+
+    <div class="form-grid2">
+      <div class="form-group">
+        <label class="form-label">Durée estimée</label>
+        <input class="form-input" id="f-duree" type="text" placeholder="Ex: 3 semaines">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Difficulté</label>
+        <select class="form-select" id="f-difficulte">
+          <option value="debutant">Débutant</option>
+          <option value="intermediaire">Intermédiaire</option>
+          <option value="avance">Avancé</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Tags (séparés par des virgules)</label>
+      <input class="form-input" id="f-tags" type="text" placeholder="Ex: bois, structure, autoconstruction">
+    </div>
+
+    <div class="form-section-label">// Matériaux & outils</div>
+
+    <div class="form-group">
+      <label class="form-label">Matériaux</label>
+      <div class="dynamic-list" id="materiaux-list"></div>
+      <button class="btn-add-item" onclick="addItem('materiaux')">+ Ajouter un matériau</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Outils</label>
+      <div class="dynamic-list" id="outils-list"></div>
+      <button class="btn-add-item" onclick="addItem('outils')">+ Ajouter un outil</button>
+    </div>
+
+    <div class="form-section-label">// Étapes du projet</div>
+
+    <div class="form-group">
+      <div class="dynamic-list" id="etapes-list"></div>
+      <button class="btn-add-item" onclick="addEtape()">+ Ajouter une étape</button>
+    </div>
+
+    <button class="btn-submit" id="btn-submit-projet" onclick="submitProjet()">Publier le projet →</button>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── JS ── -->
 <script>
-  const statutLabel = { "termine": "Terminé", "en-cours": "En cours", "a-venir": "À venir" };
-  const typeIcon    = { "pdf": "PDF", "svg": "SVG", "fc": "FC", "py": "PY", "md": "MD", "dxf": "DXF" };
+  // ── CONFIG SUPABASE
+  const SUPABASE_URL = 'https://vayqqyqvqaporjhsatng.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Oak4e3lMyXyiusZE-DgQMg_ofgMLS_d';
+  const { createClient } = supabase;
+  const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  let openId = 0;
+  // ── STATE
+  let currentUser = null;
+  let allProjects = [];
+  let currentFilter = 'tous';
+  let openDetailId = null;
 
-  // ── Génération des cartes
-  function renderCards() {
+  // ── INIT
+  async function init() {
+    const { data: { session } } = await db.auth.getSession();
+    if (session) setUser(session.user);
+
+    db.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setUser(session.user);
+        closeAuthModal();
+        showToast('Connecté avec succès !');
+      } else {
+        currentUser = null;
+        renderNav();
+      }
+    });
+
+    await loadProjects();
+  }
+
+  // ── AUTH
+  function setUser(user) {
+    currentUser = user;
+    renderNav();
+  }
+
+  function renderNav() {
+    const el = document.getElementById('nav-auth');
+    if (currentUser) {
+      const avatar = currentUser.user_metadata?.avatar_url;
+      const name   = currentUser.user_metadata?.full_name || currentUser.user_metadata?.user_name || 'Utilisateur';
+      const initials = name.slice(0,2).toUpperCase();
+      el.innerHTML = `
+        <div class="nav-user">
+          <div class="nav-avatar">
+            ${avatar ? `<img src="${avatar}" alt="${name}">` : initials}
+          </div>
+          <span>${name.split(' ')[0]}</span>
+          <button class="btn-logout" onclick="logout()">Déconnexion</button>
+        </div>
+      `;
+    } else {
+      el.innerHTML = `<button class="btn-login" onclick="openAuthModal()">Se connecter</button>`;
+    }
+  }
+
+  async function loginWith(provider) {
+    await db.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: window.location.href }
+    });
+  }
+
+  async function logout() {
+    await db.auth.signOut();
+    showToast('Déconnecté');
+  }
+
+  function openAuthModal()  { document.getElementById('modal-auth').classList.add('visible'); }
+  function closeAuthModal() { document.getElementById('modal-auth').classList.remove('visible'); }
+
+  // ── PROJETS — CHARGEMENT
+  async function loadProjects() {
+    const { data, error } = await db.from('projets').select('*').order('created_at', { ascending: false });
+    if (error) { console.error(error); return; }
+    allProjects = data || [];
+    renderProjects();
+  }
+
+  // ── FILTRES & RECHERCHE
+  let currentFilterValue = 'tous';
+
+  function setFilter(val, btn) {
+    currentFilterValue = val;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderProjects();
+  }
+
+  function filterProjects() { renderProjects(); }
+
+  function getFilteredProjects() {
+    const q = document.getElementById('search-input').value.toLowerCase().trim();
+    return allProjects.filter(p => {
+      const matchFilter = currentFilterValue === 'tous' || p.categorie === currentFilterValue;
+      const matchSearch = !q || p.titre.toLowerCase().includes(q) || (p.description || '').toLowerCase().includes(q) || (p.tags || []).some(t => t.toLowerCase().includes(q));
+      return matchFilter && matchSearch;
+    });
+  }
+
+  // ── RENDER PROJETS
+  function renderProjects() {
+    const filtered = getFilteredProjects();
     const grid = document.getElementById('projects-grid');
-    grid.innerHTML = PROJETS.map((p, i) => `
-      <div class="project-card ${i === openId ? 'active' : ''}" id="card-${i}" onclick="toggleProject(${i})">
-        <div class="card-img">
-          ${p.photo ? `<img src="${p.photo}" alt="${p.titre}">` : '[ Photo à venir ]'}
-          <div class="card-img-tag">${p.tags[0] || ''}</div>
-        </div>
-        <div class="card-body">
-          <div class="card-num">// ${p.num}</div>
-          <div class="card-title">${p.titre}</div>
-          <div class="card-type">${p.type}</div>
-          <span class="card-status s-${p.statut}">${statutLabel[p.statut]}</span>
-        </div>
-      </div>
-    `).join('');
-  }
+    const label = document.getElementById('projects-label');
 
-  // ── Génération des détails
-  function renderDetails() {
-    const container = document.getElementById('details-container');
-    container.innerHTML = PROJETS.map((p, i) => `
-      <div class="detail ${i === openId ? 'visible' : ''}" id="detail-${i}">
-        <div class="detail-header">
-          <div>
-            <div class="detail-title">${p.titre}</div>
-            <div class="detail-sub">// ${p.num} — ${p.tags.join(' · ')}</div>
-          </div>
-          <button class="detail-close" onclick="closeProject(${i})">✕ Fermer</button>
-        </div>
-        <div class="detail-body">
+    label.textContent = `// ${filtered.length} projet${filtered.length !== 1 ? 's' : ''}`;
 
-          ${(p.materiaux.length || p.outils.length) ? `
-          <div class="recipe-grid">
-            <div>
-              ${p.materiaux.length ? `
-              <div class="recipe-block-label">// Matériaux</div>
-              ${p.materiaux.map(m => `
-                <div class="ingredient">
-                  <div class="ingredient-dot"></div>
-                  ${m.nom}
-                  ${m.quantite ? `<span class="ingredient-qty">${m.quantite}</span>` : ''}
-                </div>
-              `).join('')}
-              ` : ''}
-              ${p.outils.length ? `
-              <div class="recipe-block-label" style="margin-top:1rem;">// Outils</div>
-              ${p.outils.map(o => `
-                <div class="ingredient">
-                  <div class="ingredient-dot"></div>
-                  ${o}
-                </div>
-              `).join('')}
-              ` : ''}
-            </div>
-            <div>
-              <div class="recipe-block-label">// Étapes du projet</div>
-              ${p.etapes.map((e, j) => `
-                <div class="tl-step" onclick="toggleStep(${i},${j})">
-                  <div class="tl-left">
-                    <div class="tl-dot ${e.statut}">${e.statut === 'done' ? '✓' : j + 1}</div>
-                    ${j < p.etapes.length - 1 ? '<div class="tl-line"></div>' : ''}
-                  </div>
-                  <div class="tl-content">
-                    <div class="tl-step-title">${e.titre}</div>
-                    <div class="tl-step-desc ${j === 0 ? 'open' : ''}">${e.desc}</div>
-                    <div class="tl-step-date">${e.date}</div>
-                  </div>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-          ` : `<p style="font-family:'Courier Prime',monospace;font-size:0.8rem;color:var(--graphite-lt);font-style:italic;margin-bottom:1.5rem;">Ce projet n'a pas encore démarré — les informations seront ajoutées prochainement.</p>`}
-
-          ${p.fichiers.length ? `
-          <hr class="sep">
-          <div class="recipe-block-label">// Fichiers sources</div>
-          <div class="files-manager">
-            <div class="files-header">
-              <span class="files-header-label">${p.fichiers.length} fichier${p.fichiers.length > 1 ? 's' : ''}</span>
-              <button class="files-dl-all">↓ Tout télécharger</button>
-            </div>
-            ${p.fichiers.map(f => `
-              <div class="file-row">
-                <div class="file-icon f-${f.type}">${typeIcon[f.type] || f.type.toUpperCase()}</div>
-                <span class="file-name">${f.nom}</span>
-                <span class="file-size">${f.taille}</span>
-                <a class="file-dl" href="${f.url}" download>↓</a>
-              </div>
-            `).join('')}
-          </div>
-          ` : ''}
-
-        </div>
-      </div>
-    `).join('');
-  }
-
-  // ── Toggle projet
-  function toggleProject(i) {
-    if (openId === i) {
-      closeProject(i);
+    if (filtered.length === 0) {
+      grid.innerHTML = `
+        <div class="empty-state" style="grid-column:1/-1">
+          <div class="empty-state-title">Aucun projet trouvé</div>
+          <div class="empty-state-sub">// Soyez le premier à publier un projet dans cette catégorie</div>
+        </div>`;
+      document.getElementById('details-container').innerHTML = '';
       return;
     }
-    openId = i;
-    renderCards();
-    renderDetails();
-    setTimeout(() => {
-      document.getElementById('detail-' + i).scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 50);
+
+    const statutLabel = { 'termine': 'Terminé', 'en-cours': 'En cours', 'a-venir': 'À venir' };
+    const typeIcon    = { 'pdf':'PDF','svg':'SVG','fc':'FC','py':'PY','md':'MD','dxf':'DXF','zip':'ZIP' };
+
+    grid.innerHTML = filtered.map((p, i) => `
+      <div class="project-card ${openDetailId === p.id ? 'active' : ''}" id="card-${p.id}" onclick="toggleProject('${p.id}')">
+        <div class="card-img">
+          ${p.couverture_url ? `<img src="${p.couverture_url}" alt="${p.titre}">` : '[ Photo à venir ]'}
+          ${(p.tags||[])[0] ? `<div class="card-img-tag">${p.tags[0]}</div>` : ''}
+        </div>
+        <div class="card-body">
+          <div class="card-num">// ${String(i+1).padStart(2,'0')}</div>
+          <div class="card-title">${p.titre}</div>
+          <div class="card-type">${p.type || p.categorie || ''}</div>
+          <div class="card-author">par ${p.auteur_nom || 'Anonyme'}</div>
+          <span class="card-status s-${p.statut}">${statutLabel[p.statut] || p.statut}</span>
+        </div>
+      </div>
+    `).join('');
+
+    // Render details
+    document.getElementById('details-container').innerHTML = filtered.map(p => {
+      const materiaux = p.materiaux || [];
+      const outils    = p.outils    || [];
+      const etapes    = p.etapes    || [];
+      const fichiers  = p.fichiers  || [];
+
+      return `
+        <div class="detail ${openDetailId === p.id ? 'visible' : ''}" id="detail-${p.id}">
+          <div class="detail-header">
+            <div>
+              <div class="detail-title">${p.titre}</div>
+              <div class="detail-sub">// ${(p.tags||[]).join(' · ')}</div>
+            </div>
+            <button class="detail-close" onclick="closeProject('${p.id}')">✕ Fermer</button>
+          </div>
+          <div class="detail-body">
+            ${p.description ? `<p style="font-size:0.9rem;color:var(--graphite-mid);line-height:1.8;margin-bottom:1.5rem;border-left:2px solid var(--kraft);padding-left:1rem;">${p.description}</p>` : ''}
+
+            ${(materiaux.length || outils.length || etapes.length) ? `
+            <div class="recipe-grid">
+              <div>
+                ${materiaux.length ? `
+                  <div class="recipe-block-label">// Matériaux</div>
+                  ${materiaux.map(m => `
+                    <div class="ingredient">
+                      <div class="ingredient-dot"></div>${m.nom}
+                      ${m.quantite ? `<span class="ingredient-qty">${m.quantite}</span>` : ''}
+                    </div>`).join('')}
+                ` : ''}
+                ${outils.length ? `
+                  <div class="recipe-block-label" style="margin-top:1rem;">// Outils</div>
+                  ${outils.map(o => `
+                    <div class="ingredient">
+                      <div class="ingredient-dot"></div>${o.nom || o}
+                    </div>`).join('')}
+                ` : ''}
+              </div>
+              <div>
+                ${etapes.length ? `
+                  <div class="recipe-block-label">// Étapes</div>
+                  ${etapes.map((e, j) => `
+                    <div class="tl-step" onclick="toggleStep('${p.id}', ${j})">
+                      <div class="tl-left">
+                        <div class="tl-dot ${e.statut || ''}">${e.statut === 'done' ? '✓' : j+1}</div>
+                        ${j < etapes.length-1 ? '<div class="tl-line"></div>' : ''}
+                      </div>
+                      <div class="tl-content">
+                        <div class="tl-step-title">${e.titre}</div>
+                        <div class="tl-step-desc ${j===0?'open':''}">${e.desc||''}</div>
+                        ${e.date ? `<div class="tl-step-date">${e.date}</div>` : ''}
+                      </div>
+                    </div>`).join('')}
+                ` : ''}
+              </div>
+            </div>` : ''}
+
+            ${fichiers.length ? `
+              <hr class="sep">
+              <div class="recipe-block-label">// Fichiers sources</div>
+              <div class="files-manager">
+                <div class="files-header">
+                  <span class="files-header-label">${fichiers.length} fichier${fichiers.length>1?'s':''}</span>
+                </div>
+                ${fichiers.map(f => `
+                  <div class="file-row">
+                    <div class="file-icon f-${f.type||'md'}">${(typeIcon[f.type]||'FIL')}</div>
+                    <span class="file-name">${f.nom}</span>
+                    <span class="file-size">${f.taille||''}</span>
+                    ${f.url ? `<a class="file-dl" href="${f.url}" target="_blank" download>↓</a>` : ''}
+                  </div>`).join('')}
+              </div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
   }
 
-  function closeProject(i) {
-    openId = -1;
-    renderCards();
-    renderDetails();
+  function toggleProject(id) {
+    if (openDetailId === id) { openDetailId = null; }
+    else { openDetailId = id; }
+    renderProjects();
+    if (openDetailId) {
+      setTimeout(() => {
+        const el = document.getElementById('detail-' + openDetailId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
   }
 
-  // ── Toggle étape timeline
-  function toggleStep(proj, step) {
-    const detail = document.getElementById('detail-' + proj);
-    const descs  = detail.querySelectorAll('.tl-step-desc');
-    const isOpen = descs[step].classList.contains('open');
+  function closeProject(id) { openDetailId = null; renderProjects(); }
+
+  function toggleStep(projId, stepIdx) {
+    const detail = document.getElementById('detail-' + projId);
+    if (!detail) return;
+    const descs = detail.querySelectorAll('.tl-step-desc');
+    const isOpen = descs[stepIdx]?.classList.contains('open');
     descs.forEach(d => d.classList.remove('open'));
-    if (!isOpen) descs[step].classList.add('open');
+    if (!isOpen && descs[stepIdx]) descs[stepIdx].classList.add('open');
   }
 
-  // ── Init
-  renderCards();
-  renderDetails();
+  // ── MODAL PROJET
+  function handleAddProject() {
+    if (!currentUser) { openAuthModal(); return; }
+    openProjetModal();
+  }
+
+  function openProjetModal() {
+    resetForm();
+    document.getElementById('modal-projet').classList.add('visible');
+  }
+
+  function closeProjetModal() {
+    document.getElementById('modal-projet').classList.remove('visible');
+  }
+
+  function resetForm() {
+    ['f-titre','f-description','f-duree','f-tags'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-categorie').value = '';
+    document.getElementById('f-statut').value = 'termine';
+    document.getElementById('f-difficulte').value = 'intermediaire';
+    document.getElementById('materiaux-list').innerHTML = '';
+    document.getElementById('outils-list').innerHTML = '';
+    document.getElementById('etapes-list').innerHTML = '';
+    addItem('materiaux');
+    addItem('outils');
+    addEtape();
+  }
+
+  // Listes dynamiques
+  function addItem(type) {
+    const list = document.getElementById(type + '-list');
+    const div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.innerHTML = type === 'materiaux'
+      ? `<input class="form-input" type="text" placeholder="Ex: Épicéa raboté">
+         <input class="form-input qty-input" type="text" placeholder="Qté">
+         <button class="btn-remove" onclick="this.parentElement.remove()">✕</button>`
+      : `<input class="form-input" type="text" placeholder="Ex: Scie circulaire">
+         <button class="btn-remove" onclick="this.parentElement.remove()">✕</button>`;
+    list.appendChild(div);
+  }
+
+  function addEtape() {
+    const list = document.getElementById('etapes-list');
+    const idx = list.children.length + 1;
+    const div = document.createElement('div');
+    div.className = 'dynamic-item';
+    div.style.flexDirection = 'column';
+    div.style.alignItems = 'stretch';
+    div.style.gap = '0.4rem';
+    div.style.marginBottom = '0.8rem';
+    div.style.padding = '0.8rem';
+    div.style.border = '1px solid var(--kraft-light)';
+    div.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-family:'Courier Prime',monospace;font-size:0.65rem;color:var(--kraft-dark);letter-spacing:0.15em;">ÉTAPE ${idx}</span>
+        <button class="btn-remove" onclick="this.closest('.dynamic-item').remove()">✕</button>
+      </div>
+      <input class="form-input" type="text" placeholder="Titre de l'étape" data-etape-titre>
+      <input class="form-input" type="text" placeholder="Description" data-etape-desc>
+      <input class="form-input" type="text" placeholder="Période (ex: Semaine 1)" data-etape-date>`;
+    list.appendChild(div);
+  }
+
+  // ── SOUMETTRE PROJET
+  async function submitProjet() {
+    if (!currentUser) return;
+
+    const titre       = document.getElementById('f-titre').value.trim();
+    const categorie   = document.getElementById('f-categorie').value;
+    const statut      = document.getElementById('f-statut').value;
+    const description = document.getElementById('f-description').value.trim();
+    const duree       = document.getElementById('f-duree').value.trim();
+    const difficulte  = document.getElementById('f-difficulte').value;
+    const tagsRaw     = document.getElementById('f-tags').value;
+    const tags        = tagsRaw.split(',').map(t => t.trim()).filter(Boolean);
+
+    if (!titre || !categorie || !description) {
+      showToast('// Merci de remplir les champs obligatoires', true);
+      return;
+    }
+
+    // Matériaux
+    const materiaux = [...document.getElementById('materiaux-list').querySelectorAll('.dynamic-item')].map(item => {
+      const inputs = item.querySelectorAll('input');
+      return inputs[0]?.value.trim() ? { nom: inputs[0].value.trim(), quantite: inputs[1]?.value.trim() || '' } : null;
+    }).filter(Boolean);
+
+    // Outils
+    const outils = [...document.getElementById('outils-list').querySelectorAll('.dynamic-item')].map(item => {
+      const input = item.querySelector('input');
+      return input?.value.trim() ? { nom: input.value.trim() } : null;
+    }).filter(Boolean);
+
+    // Étapes
+    const etapes = [...document.getElementById('etapes-list').querySelectorAll('.dynamic-item')].map(item => ({
+      titre: item.querySelector('[data-etape-titre]')?.value.trim() || '',
+      desc:  item.querySelector('[data-etape-desc]')?.value.trim()  || '',
+      date:  item.querySelector('[data-etape-date]')?.value.trim()  || '',
+      statut: '',
+    })).filter(e => e.titre);
+
+    const btn = document.getElementById('btn-submit-projet');
+    btn.disabled = true;
+    btn.textContent = 'Publication en cours…';
+
+    const { error } = await db.from('projets').insert({
+      titre,
+      categorie,
+      statut,
+      description,
+      duree,
+      difficulte,
+      tags,
+      materiaux,
+      outils,
+      etapes,
+      fichiers: [],
+      auteur_id:    currentUser.id,
+      auteur_nom:   currentUser.user_metadata?.full_name || currentUser.user_metadata?.user_name || 'Anonyme',
+      auteur_avatar: currentUser.user_metadata?.avatar_url || '',
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Publier le projet →';
+
+    if (error) {
+      console.error(error);
+      showToast('// Erreur lors de la publication', true);
+      return;
+    }
+
+    closeProjetModal();
+    showToast('Projet publié avec succès !');
+    await loadProjects();
+  }
+
+  // ── TOAST
+  function showToast(msg, isError = false) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (isError ? ' error' : '');
+    t.classList.add('visible');
+    setTimeout(() => t.classList.remove('visible'), 3000);
+  }
+
+  // ── START
+  init();
 </script>
 
 </body>
